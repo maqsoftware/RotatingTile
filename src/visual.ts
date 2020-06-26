@@ -191,101 +191,104 @@ module powerbi.extensibility.visual {
         }
 
         public update(options: VisualUpdateOptions): void {
-            this.events.renderingStarted(options);
-            // Clear the rotation effect
-            this.measureUpdateCounter = 0;
-            clearInterval(this.frameId);
-            clearInterval(this.rotationId);
-            // Format pane settings
-            this.dataViews = options.dataViews[0];
-            const animationSettings: IAnimationSettings = this.getAnimationSettings(this.dataViews);
-            const vfxSettings: IVfxSettings = this.getVfxSettings(this.dataViews);
-            const titleSettings: ITitleSettings = this.getTitleSettings(this.dataViews);
-            const labelSettings: ILabelSettings = this.getLabelSettings(this.dataViews);
-            if (options && options.dataViews && options.dataViews[0] && options.dataViews[0].table && options.dataViews[0].table.rows) {
-                this.measureNameList = options.dataViews[0].table.columns;
-                this.measureDataList = options.dataViews[0].table.rows[0];
-                this.measureDataFormattedList = [];
-                this.measureNameFormattedList = [];
-                this.labelValueList = [];
-                this.measureCount = options.dataViews[0].table.columns.length;
-                this.target.selectAll('#baseContainer').remove();
-                // Create base divs
-                this.target
-                    .append('div')
-                    .attr('id', 'baseContainer').style({
-                        width: `${options.viewport.width}px`, height: `${options.viewport.height}px`,
-                        perspective: '400px', position: 'relative'
-                    });
-                let mainContainer: HTMLSpanElement;
-                mainContainer = document.createElement('div');
-                mainContainer.setAttribute('id', 'mainContainer');
-                $('#baseContainer').append(mainContainer);
-                // 3D effect on/off
-                if (vfxSettings.show) {
-                    mainContainer.style.height = '60%';
-                    mainContainer.style.top = `${options.viewport.height / 5}px`;
-                    mainContainer.style.width = '60%';
-                    mainContainer.style.margin = 'auto';
-                    mainContainer.style.position = 'relative';
-                    mainContainer.style.backgroundColor = vfxSettings.bgColor;
-                    mainContainer.style.border = `1px solid ${vfxSettings.borderColor}`;
-                } else {
-                    mainContainer.style.height = `${options.viewport.height}px`;
-                    mainContainer.style.width = `${options.viewport.width}px`;
-                }
-                let mainContainerWidth: number;
-                const $mainCont: JQuery = $('#mainContainer');
-                mainContainerWidth = parseFloat($mainCont.css('width'));
-                this.measureValue = Math.round(this.measureDataList[0] * 100) / 100;
-                let formatter: IValueFormatter;
-                // Logic to format data label tiles (currency, percentage and ellipses)
-                for (const measure of Object.keys(this.measureNameList)) {
-                    let displayVal: number;
-                    displayVal = 0;
-                    let tempMeasureData: number;
-                    tempMeasureData = Math.round(this.measureDataList[measure]);
-                    const valLen: number = String(tempMeasureData).length;
-                    if (labelSettings.displayUnits === 0) {
-                        if (valLen > 9) {
-                            displayVal = 1e9;
-                        } else if (valLen <= 9 && valLen > 6) {
-                            displayVal = 1e6;
-                        } else if (valLen <= 6 && valLen >= 4) {
-                            displayVal = 1e3;
-                        } else {
-                            displayVal = 10;
-                        }
-                    }
-                    if ((String(this.measureNameList[measure].format) === 'dd MMMM yyyy') ||
-                        (String(this.measureNameList[measure].format) === 'undefined')) {
-                        formatter = valueFormatter.create({ format: this.measureNameList[measure] });
-                    } else {
-                        formatter = valueFormatter.create({
-                            format: this.measureNameList[measure].format,
-                            value: labelSettings.displayUnits === 0 ? displayVal : labelSettings.displayUnits,
-                            precision: labelSettings.textPrecision
+            try {
+                this.events.renderingStarted(options);
+                // Clear the rotation effect
+                this.measureUpdateCounter = 0;
+                clearInterval(this.frameId);
+                clearInterval(this.rotationId);
+                this.dataViews = options.dataViews[0];
+                const animationSettings: IAnimationSettings = this.getAnimationSettings(this.dataViews);
+                const vfxSettings: IVfxSettings = this.getVfxSettings(this.dataViews);
+                const titleSettings: ITitleSettings = this.getTitleSettings(this.dataViews);
+                const labelSettings: ILabelSettings = this.getLabelSettings(this.dataViews);
+                if (options && options.dataViews && options.dataViews[0] && options.dataViews[0].table && options.dataViews[0].table.rows) {
+                    this.measureNameList = options.dataViews[0].table.columns;
+                    this.measureDataList = options.dataViews[0].table.rows[0];
+                    this.measureDataFormattedList = [];
+                    this.measureNameFormattedList = [];
+                    this.labelValueList = [];
+                    this.measureCount = options.dataViews[0].table.columns.length;
+                    this.target.selectAll('#baseContainer').remove();
+                    // Create base divs
+                    this.target
+                        .append('div')
+                        .attr('id', 'baseContainer').style({
+                            width: `${options.viewport.width}px`, height: `${options.viewport.height}px`,
+                            perspective: '400px', position: 'relative'
                         });
+                    let mainContainer: HTMLSpanElement;
+                    mainContainer = document.createElement('div');
+                    mainContainer.setAttribute('id', 'mainContainer');
+                    $('#baseContainer').append(mainContainer);
+                    // 3D effect on/off
+                    if (vfxSettings.show) {
+                        mainContainer.style.height = '60%';
+                        mainContainer.style.top = `${options.viewport.height / 5}px`;
+                        mainContainer.style.width = '60%';
+                        mainContainer.style.margin = 'auto';
+                        mainContainer.style.position = 'relative';
+                        mainContainer.style.backgroundColor = vfxSettings.bgColor;
+                        mainContainer.style.border = `1px solid ${vfxSettings.borderColor}`;
+                    } else {
+                        mainContainer.style.height = `${options.viewport.height}px`;
+                        mainContainer.style.width = `${options.viewport.width}px`;
                     }
-                    this.labelValueList.push(formatter.format(this.measureDataList[measure]));
-                    let measureDataProperties: TextProperties;
-                    measureDataProperties = {
-                        text: formatter.format(this.measureDataList[measure]),
-                        fontFamily: 'Segoe UI Semibold,wf_segoe-ui_semibold,helvetica,arial,sans-serif', fontSize: `${labelSettings.fontSize * 2}px`
-                    };
-                    let measureNameProperties: TextProperties;
-                    measureNameProperties = {
-                        text: this.measureNameList[measure].displayName,
-                        fontFamily: 'Segoe UI Semibold,wf_segoe-ui_semibold,helvetica,arial,sans-serif', fontSize: `${titleSettings.fontSize}px`
-                    };
-                    this.measureDataFormattedList
-                        .push(textMeasurementService.getTailoredTextOrDefault(measureDataProperties, mainContainerWidth));
-                    this.measureNameFormattedList
-                        .push(textMeasurementService.getTailoredTextOrDefault(measureNameProperties, mainContainerWidth));
+                    let mainContainerWidth: number;
+                    const $mainCont: JQuery = $('#mainContainer');
+                    mainContainerWidth = parseFloat($mainCont.css('width'));
+                    this.measureValue = Math.round(this.measureDataList[0] * 100) / 100;
+                    let formatter: IValueFormatter;
+                    // Logic to format data label tiles (currency, percentage and ellipses)
+                    for (const measure of Object.keys(this.measureNameList)) {
+                        let displayVal: number;
+                        displayVal = 0;
+                        let tempMeasureData: number;
+                        tempMeasureData = Math.round(this.measureDataList[measure]);
+                        const valLen: number = String(tempMeasureData).length;
+                        if (labelSettings.displayUnits === 0) {
+                            if (valLen > 9) {
+                                displayVal = 1e9;
+                            } else if (valLen <= 9 && valLen > 6) {
+                                displayVal = 1e6;
+                            } else if (valLen <= 6 && valLen >= 4) {
+                                displayVal = 1e3;
+                            } else {
+                                displayVal = 10;
+                            }
+                        }
+                        if ((String(this.measureNameList[measure].format) === 'dd MMMM yyyy') ||
+                            (String(this.measureNameList[measure].format) === 'undefined')) {
+                            formatter = valueFormatter.create({ format: this.measureNameList[measure] });
+                        } else {
+                            formatter = valueFormatter.create({
+                                format: this.measureNameList[measure].format,
+                                value: labelSettings.displayUnits === 0 ? displayVal : labelSettings.displayUnits,
+                                precision: labelSettings.textPrecision
+                            });
+                        }
+                        this.labelValueList.push(formatter.format(this.measureDataList[measure]));
+                        let measureDataProperties: TextProperties;
+                        measureDataProperties = {
+                            text: formatter.format(this.measureDataList[measure]),
+                            fontFamily: 'Segoe UI Semibold,wf_segoe-ui_semibold,helvetica,arial,sans-serif', fontSize: `${labelSettings.fontSize * 2}px`
+                        };
+                        let measureNameProperties: TextProperties;
+                        measureNameProperties = {
+                            text: this.measureNameList[measure].displayName,
+                            fontFamily: 'Segoe UI Semibold,wf_segoe-ui_semibold,helvetica,arial,sans-serif', fontSize: `${titleSettings.fontSize}px`
+                        };
+                        this.measureDataFormattedList
+                            .push(textMeasurementService.getTailoredTextOrDefault(measureDataProperties, mainContainerWidth));
+                        this.measureNameFormattedList
+                            .push(textMeasurementService.getTailoredTextOrDefault(measureNameProperties, mainContainerWidth));
+                    }
+                    this.updateHelper(labelSettings, formatter, titleSettings, $mainCont, animationSettings);
                 }
-                this.updateHelper(labelSettings, formatter, titleSettings, $mainCont, animationSettings);
+                this.events.renderingFinished(options);
+            } catch (exception) {
+                this.events.renderingFailed(options, exception);
             }
-            this.events.renderingFinished(options);
         }
 
         private updateHelper(labelSettings: ILabelSettings, formatter: IValueFormatter, titleSettings: ITitleSettings, $mainCont: JQuery<HTMLElement>, animationSettings: IAnimationSettings): void {
