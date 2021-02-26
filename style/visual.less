@@ -1,16 +1,18 @@
-@import (less) "node_modules/powerbi-visuals-utils-formattingutils/lib/index.css";
-
-p {
-    font-size: 20px;
-    font-weight: bold;
-    em {
-        background: yellow;
-        padding: 5px;
-        
-    }
+.baseContainer {
+  perspective: 400px;
+  position: relative;
 }
 
-li {
-    list-style: disc;
-    font-weight: bold;
+.mainContainer {
+  position: relative;
+}
+
+.box {
+  font-family: "Segoe UI Semibold";
+  margin: auto;
+  text-align: center;
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  transform: translateY(-50%);
 }
