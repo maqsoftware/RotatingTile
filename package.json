@@ -1,23 +1,32 @@
 {
   "name": "visual",
+  "scripts": {
+    "pbiviz": "pbiviz",
+    "start": "pbiviz start",
+    "package": "pbiviz package",
+    "lint": "tslint -c tslint.json -p tsconfig.json"
+  },
   "dependencies": {
-    "jquery": "^3.5.0",
-    "lodash": "4.17.15",
-    "powerbi-visuals-tools": "^2.6.0",
-    "powerbi-visuals-utils-dataviewutils": "1.5.0",
-    "powerbi-visuals-utils-formattingutils": "3.1.0",
-    "powerbi-visuals-utils-svgutils": "1.2.0",
-    "powerbi-visuals-utils-typeutils": "1.2.0",
-    "typescript": "3.4.5"
+    "@babel/runtime": "^7.6.0",
+    "@babel/runtime-corejs2": "^7.6.0",
+    "core-js": "^3.2.1",
+    "d3": "^5.12.0",
+    "powerbi-visuals-api": "^3.5.1",
+    "powerbi-visuals-utils-dataviewutils": "^2.2.1",
+    "powerbi-visuals-utils-formattingutils": "^4.7.1",
+    "powerbi-visuals-utils-tooltiputils": "^2.5.2",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "regenerator-runtime": "^0.13.5"
   },
   "devDependencies": {
-    "@types/d3": "^3.5.36",
-    "@types/jquery": "^3.3.29",
-    "@types/lodash": "4.14.121",
-    "tslint": "^5.20.0",
-    "tslint-microsoft-contrib": "^6.2.0"
-  },
-  "scripts": {
-    "lint": "tslint -c tslint.json -p tsconfig.json"
+    "@types/d3": "^5.7.2",
+    "@types/react": "^17.0.1",
+    "@types/react-dom": "^17.0.0",
+    "@types/regenerator-runtime": "^0.13.0",
+    "ts-loader": "^6.1.0",
+    "tslint": "^5.18.0",
+    "tslint-microsoft-contrib": "^6.2.0",
+    "typescript": "^3.6.3"
   }
 }
